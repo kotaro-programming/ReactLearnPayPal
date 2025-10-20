@@ -1,0 +1,238 @@
+paypal模倣UI制作
+
+プロジェクトを作る（環境構築）
+npm create vite@latest paypal-home -- --template react-ts
+cd paypal-home
+npm install
+
+Tailwind v4導入
+npm install -D c postcss autoprefixer
+
+postcss.config.mjsをプロジェクトフォルダに作成
+// vite.config.ts
+import { defineConfig } from "vite";
+import tailwindcss from "@tailwindcss/vite";
+export default defineConfig({
+  plugins: [tailwindcss()],
+});
+
+src/index.cssにTailwindをインポート
+@import "tailwindcss";
+
+paypalのUIを観察・分解する（home）
+
+観察ポイント
+・ページ構成（上から順に何があるか）
+・色、余白、フォントの使い方
+・セクションの区切り方（視覚的リズム）
+・コンポーネントの繰り返しパターン（ボタン、カードなど）
+
+App.tsxとmain.tsx
+App.tsxはルーティングの役割をする
+main.tsxはReactをDOMにマウント
+
+Homeページには次の構造がある
+App
+ └─ Home
+     ├─ Header
+     ├─ HeroSection
+     ├─ FeaturesSection
+     ├─ BusinessSection
+     └─ Footer
+
+構造をどうコンポーネントに分解するか
+App.tsx：アプリ全体を管理（ルーティングやテーマ設定）
+Home.tsx：１つのページ
+その中に複数の「UIセクションコンポーネント」を配置
+
+カードとは
+WebデザインやUI設計で非常によく使われる概念
+情報のかたまり（画像・タイトル・説明など）をひとつ「箱」にまとめたデザイン要素のこと。
+
+STEP1：セクション単位で分ける
+まずは「見た目の区切り」で分ける。
+セクション名	　 役割	    　　　　　　　　　　　　　　　　　　　　　　ファイル例
+Header	　　　　　サイト全体の共通ヘッダー（ロゴ・メニュー・ボタン）	src/components/Header.tsx
+HeroSection	　　 メインビジュアル、キャッチコピー、ボタン	　　　　　 src/components/HeroSection.tsx
+FeaturesSection	機能紹介カードの集合	                         src/components/FeaturesSection.tsx
+BusinessSection	法人向けの誘導セクション	                      src/components/BusinessSection.tsx
+Footer	        リンク群・コピーライト	                         src/components/Footer.tsx
+
+STEP2：さらに中の繰り返し構造を小さく分ける
+
+STEP3：共通パーツもコンポーネント化する
+
+実装
+ディレクトリ構成
+src/
+├─ components/
+│  ├─ Header.tsx        ← ヘッダー（ロゴ・メニュー・ボタン）
+│  ├─ Hero.tsx          ← メインビジュアル（キャッチコピー＋画像）
+│  ├─ FeatureCard.tsx   ← 特徴カード（1枚ごとの小コンポーネント）
+│  ├─ Features.tsx      ← 特徴カード群をまとめるセクション
+│  ├─ Business.tsx      ← 法人向け案内セクション（後半で追加）
+│  ├─ Footer.tsx        ← フッター（リンク・著作権）
+├─ pages/
+│  └─ Home.tsx          ← トップページ（各セクションを組み合わせる）
+├─ App.tsx              ← 全ページのルート
+├─ main.tsx             ← Reactエントリーポイント
+└─ index.css            ← Tailwind読み込み
+
+各ファイルの関係図
+main.tsx
+  └── App.tsx
+        └── Home.tsx
+              ├── Header.tsx
+              ├── Hero.tsx
+              ├── Features.tsx
+              │     └── FeatureCard.tsx
+              ├── Business.tsx
+              └── Footer.tsx
+
+App.tsx全体のルート
+この中でどのページをを表示するかを決める
+// src/App.tsx
+import Home from "./pages/Home";
+
+function App() {
+  return <Home />;
+}
+
+export default App;
+
+Header.tsx
+// src/components/Header.tsx
+export default function Header() {
+  return (
+    <header className="flex justify-between items-center px-8 py-4 shadow">
+      <h1 className="text-2xl font-bold text-blue-600">PayPal</h1>
+      <nav className="hidden md:flex gap-6 text-sm text-gray-700">
+        <a href="#">個人</a>
+        <a href="#">法人</a>
+        <a href="#">ヘルプ</a>
+      </nav>
+      <div className="flex gap-3">
+        <button className="text-blue-600 font-semibold hover:underline">
+          ログイン
+        </button>
+        <button className="bg-blue-600 text-white px-4 py-2 rounded-full hover:bg-blue-700">
+          新規登録
+        </button>
+      </div>
+    </header>
+  );
+}
+Tailwind CSS のユーティリティクラス
+Tailwindでは、通常のcssを別ファイルに書く代わりに
+クラス名を「機能（プロパティ）」ごとに直接HTML（やJSX）の中に並べて書く。
+
+
+Hero.tsx 
+// src/components/Hero.tsx
+import mainImage from "../assets/main.png";
+export default function Hero() {
+  return (
+    <section className="text-center bg-blue-50 py-20 px-6">
+      <h2 className="text-4xl font-bold text-gray-800 mb-4">
+        かんたん、安全、スピーディー。
+      </h2>
+      <p className="text-gray-600 mb-8">
+        PayPalなら、オンラインでも実店舗でも、支払いも送金もかんたん。
+      </p>
+      <button className="bg-blue-600 text-white px-8 py-3 rounded-full hover:bg-blue-700">
+        無料で登録
+      </button>
+      <div className="mt-12">
+        <img
+          src={mainImage}
+          alt="PayPal Hero"
+          className="mx-auto rounded-lg shadow-lg"
+        />
+      </div>
+    </section>
+  );
+}
+Reactで画像を適用させる。
+src/assetsに画像を置く
+画像をインポート
+import mainImage from "../assets/main.png";
+
+
+
+FeatureCard.tsx 
+// src/components/FeatureCard.tsx
+interface Props {
+  title: string;
+  desc: string;
+}
+
+export default function FeatureCard({ title, desc }: Props) {
+  return (
+    <div className="bg-white shadow rounded-lg p-6 flex flex-col items-center text-center">
+      <h3 className="text-lg font-semibold mb-2">{title}</h3>
+      <p className="text-gray-600 text-sm">{desc}</p>
+    </div>
+  );
+}
+Propsを定義する
+
+Features.tsx 
+// src/components/Features.tsx
+import FeatureCard from "./FeatureCard";
+
+export default function Features() {
+  return (
+    <section className="py-20 bg-gray-50 px-6">
+      <div className="max-w-6xl mx-auto grid gap-8 md:grid-cols-3">
+        <FeatureCard
+          title="かんたんに支払い"
+          desc="クリックひとつでスムーズにお支払い。"
+        />
+        <FeatureCard
+          title="安全に取引"
+          desc="カード情報を相手に伝えずに支払い可能。"
+        />
+        <FeatureCard
+          title="世界中で利用"
+          desc="200以上の国と地域で利用できるグローバルな決済。"
+        />
+      </div>
+    </section>
+  );
+}
+Propsを受け取る
+
+Business.tsx
+// src/components/Business.tsx
+export default function Business() {
+  return (
+    <section className="bg-blue-600 text-white text-center py-20 px-6">
+      <h2 className="text-3xl font-bold mb-4">
+        ビジネスを支える、信頼の決済ソリューション。
+      </h2>
+      <p className="mb-8">
+        PayPalなら、国内外の顧客に安心して決済手段を提供できます。
+      </p>
+      <button className="bg-white text-blue-600 font-semibold px-6 py-3 rounded-full hover:bg-gray-100">
+        法人向けサービスを見る
+      </button>
+    </section>
+  );
+}
+
+
+Footer.tsx
+// src/components/Footer.tsx
+export default function Footer() {
+  return (
+    <footer className="bg-gray-100 text-center py-6 text-sm text-gray-600">
+      <p>© 2025 PayPal. All rights reserved.</p>
+    </footer>
+  );
+}
+
+
+
+
+
+
