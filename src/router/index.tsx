@@ -1,15 +1,15 @@
 import { BrowserRouter, Routes, Route, Navigate, Outlet } from "react-router-dom";
-import PublicHome from "@/pages/Home";
-import Login from "@/pages/Login";
-import Register from "@/pages/Register";
-import AppLayout from "@/components/layout/AppLayout";
-import AppHome from "@/pages/app/Home";
-import Payments from "@/pages/app/Payments";
-import Wallet from "@/pages/app/Wallet";
-import Activity from "@/pages/app/Activity";
-import Help from "@/pages/app/Help";
-import Settings from "@/pages/app/Settings";
-import { isLoggedIN } from "@/lib/auth";
+import PublicHome from "../pages/Home";
+import Login from "../pages/Login";
+import Register from "../pages/Register";
+import AppLayout from "../components/layout/AppLayout";
+import AppHome from "../pages/app/Home";
+import Payments from "../pages/app/Payments";
+import Wallet from "../pages/app/Wallet";
+import Activity from "../pages/app/Activity";
+import Help from "../pages/app/Help";
+import Settings from "../pages/app/Settings";
+import { isLoggedIN } from "../lib/auth";
 
 function PrivateRoute(){
     return isLoggedIN() ? <Outlet/> : <Navigate to="/login" replace />;
