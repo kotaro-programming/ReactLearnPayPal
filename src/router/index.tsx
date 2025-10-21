@@ -1,4 +1,4 @@
-import { BrowserRotes, Routes, Route, Navigate, Outlet } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate, Outlet } from "react-router-dom";
 import PublicHome from "@/pages/Home";
 import Login from "@/pages/Login";
 import Register from "@/pages/Register";
@@ -17,7 +17,7 @@ function PrivateRoute(){
 
 export default function AppRouter() {
     return (
-        <BrowserRotes>
+        <BrowserRouter>
             <Routes>
                 {/* 公開エリア */}
                 <Route path="/" element={<PublicHome/>} />  
@@ -30,7 +30,7 @@ export default function AppRouter() {
                         <Route index element={<Navigate to="home" replace/>}/>
                         <Route path="home" element={<AppHome/>}/>
                         <Route path="payments" element={<Payments/>}/>
-                        <Route path="wallet" elemnts={<Wallet/>}/>
+                        <Route path="wallet" element={<Wallet/>}/>
                         <Route path="activity" element={<Activity/>}/>
                         <Route path="help" element={<Help/>}/>
                         <Route path="settings" element={<Settings/>}/>
@@ -40,6 +40,6 @@ export default function AppRouter() {
                 {/* 404相当はトップへ */}
                 <Route path="*" element={<Navigate to="/" replace/>} />
             </Routes>
-        </BrowserRotes>
+        </BrowserRouter>
     )
 }
