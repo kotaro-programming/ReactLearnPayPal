@@ -10,10 +10,10 @@ export default function Header() {
       </nav>
       <div className="flex gap-3">
         <button className="text-blue-600 font-semibold hover:underline">
-          ログイン
+          <a href="/login">ログイン</a>
         </button>
         <button className="bg-blue-600 text-white px-4 py-2 rounded-full hover:bg-blue-700">
-          新規登録
+          <a href="/Register">会員登録</a>
         </button>
       </div>
     </header>

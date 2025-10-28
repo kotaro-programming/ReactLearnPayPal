@@ -11,7 +11,7 @@ export default function Hero() {
         PayPalなら、オンラインでも実店舗でも、支払いも送金もかんたん。
       </p>
       <button className="bg-blue-600 text-white px-8 py-3 rounded-full hover:bg-blue-700">
-        無料で登録
+        <a href="/Register">無料で登録</a>
       </button>
       <div className="mt-12">
         <img

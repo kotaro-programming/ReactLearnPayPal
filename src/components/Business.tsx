@@ -8,9 +8,6 @@ export default function Business() {
       <p className="mb-8">
         PayPalなら、国内外の顧客に安心して決済手段を提供できます。
       </p>
-      <button className="bg-white text-blue-600 font-semibold px-6 py-3 rounded-full hover:bg-gray-100">
-        法人向けサービスを見る
-      </button>
     </section>
   );
 }
