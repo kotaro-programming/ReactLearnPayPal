@@ -3,12 +3,12 @@ import PublicHome from "../pages/Home";
 import Login from "../pages/Login";
 import Register from "../pages/Register";
 import AppLayout from "../components/layout/AppLayout";
-// import AppHome from "../pages/app/Home";
-// import Payments from "../pages/app/Payments";
-// import Wallet from "../pages/app/Wallet";
-// import Activity from "../pages/app/Activity";
-// import Help from "../pages/app/Help";
-// import Settings from "../pages/app/Settings";
+import AppHome from "../pages/app/Home";
+import Payments from "../pages/app/Payments";
+import Wallet from "../pages/app/Wallet";
+import Activity from "../pages/app/Activity";
+import Help from "../pages/app/Help";
+import Settings from "../pages/app/Settings";
 import { isLoggedIn } from "../lib/auth";
 
 function PrivateRoute(){
@@ -28,12 +28,12 @@ export default function AppRouter() {
                 <Route element={<PrivateRoute/>}>
                     <Route path="/app" element={<AppLayout/>}>
                         <Route index element={<Navigate to="home" replace/>}/>
-                        {/* <Route path="home" element={<AppHome/>}/>
+                        <Route path="home" element={<AppHome/>}/>
                         <Route path="payments" element={<Payments/>}/>
                         <Route path="wallet" element={<Wallet/>}/>
                         <Route path="activity" element={<Activity/>}/>
                         <Route path="help" element={<Help/>}/>
-                        <Route path="settings" element={<Settings/>}/> */}
+                        <Route path="settings" element={<Settings/>}/>
                     </Route>
                 </Route>
 
