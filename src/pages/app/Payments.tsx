@@ -1,5 +1,5 @@
 // src/pages/app/Payments.tsx
-import { useState } from "react";
+import { useState, type FormEvent } from "react";
 
 export default function Payments() {
   const [email, setEmail] = useState("");
@@ -7,16 +7,52 @@ export default function Payments() {
   const [note, setNote] = useState("");
   const [message, setMessage] = useState("");
 
-  const onSubmit = (e: React.FormEvent) => {
+  const onSubmit = async (e: FormEvent) => {
     e.preventDefault();
-    if (!email || !amount) {
-      setMessage("メールアドレスと金額を入力してください。");
+
+    const normalizedAmount = Number(amount.replace(/,/g, ""));
+    if (
+      !email ||
+      !amount ||
+      !Number.isFinite(normalizedAmount) ||
+      normalizedAmount <= 0
+    ) {
+      setMessage("メールアドレスと正しい金額を入力してください。");
       return;
     }
-    setMessage(`「${email}」に ¥${amount} を送金したことにします（モック）。`);
-    setEmail("");
-    setAmount("");
-    setNote("");
+
+    try {
+      setMessage("");
+
+      const res = await fetch("http://localhost:3001/api/payments", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          toEmail: email,
+          amount: normalizedAmount,
+          note,
+        }),
+      });
+
+      if (!res.ok) {
+        const errJson = await res.json().catch(() => null);
+        const msg = errJson?.error ?? `送金に失敗しました（${res.status}）`;
+        setMessage(msg);
+        return;
+      }
+
+      setMessage(
+        `「${email}」に ¥${normalizedAmount.toLocaleString(
+          "ja-JP"
+        )} を送金しました。`
+      );
+      setEmail("");
+      setAmount("");
+      setNote("");
+    } catch (err) {
+      console.error(err);
+      setMessage("送金に失敗しました。バックエンドが起動しているか確認してください。");
+    }
   };
 
   return (

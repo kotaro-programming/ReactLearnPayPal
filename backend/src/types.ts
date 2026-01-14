@@ -40,3 +40,14 @@ export type WalletsResponse = {
 export type PaymentsResponse = {
   payments: Payment[];
 };
+
+export type CreatePaymentRequest = {
+  toEmail: string;
+  amount: number;
+  note?: string;
+};
+
+export type CreatePaymentResponse = {
+  payment: Payment;
+};
+

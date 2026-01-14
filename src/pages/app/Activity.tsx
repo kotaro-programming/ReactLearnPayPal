@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { fetchPayments, Payment } from "../../lib/api";
+import { fetchPayments, type Payment } from "../../lib/api";
 
 type FilterValue = "all" | "in" | "out" | "refund";
 

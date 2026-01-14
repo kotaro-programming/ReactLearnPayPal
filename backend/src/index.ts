@@ -7,6 +7,8 @@ import {
   MeResponse,
   WalletsResponse,
   PaymentsResponse,
+  CreatePaymentRequest,
+  CreatePaymentResponse,
 } from './types';
 import { pool } from './db';
 import { pathToFileURL } from 'url';
@@ -140,6 +142,59 @@ app.get(
     } catch (err) {
       console.error('Error in /api/payments:', err);
       res.status(500).json({ error: 'Internal server error' });
+    }
+  }
+);
+
+app.post(
+  '/api/payments',
+  async (
+    req: Request<{}, CreatePaymentResponse | { error: string }, CreatePaymentRequest>,
+    res: Response<CreatePaymentResponse | { error: string }>
+  ) => {
+    try {
+      const { toEmail, amount, note } = req.body;
+
+      if (!toEmail || typeof toEmail !== 'string') {
+        return res.status(400).json({ error: 'toEmail is required' });
+      }
+      if (typeof amount !== 'number' || !Number.isFinite(amount) || amount <= 0) {
+        return res.status(400).json({ error: 'amount must be a positive number' });
+      }
+
+      const title =
+        note && note.trim().length > 0 ? `${toEmail} (${note.trim()})` : toEmail;
+
+      const result = await pool.query(
+        `
+        INSERT INTO payments (
+          user_id, title, amount, currency, status, direction, occurred_at, created_at
+        )
+        VALUES ($1, $2, $3, 'JPY', 'completed', 'out', NOW(), NOW())
+        RETURNING
+          id, user_id, title, amount, currency, status, direction, occurred_at, created_at
+        `,
+        [FIXED_USER_ID, title, amount]
+      );
+
+      const row = result.rows[0];
+
+      const payment: Payment = {
+        id: row.id,
+        userId: row.user_id,
+        title: row.title,
+        amount: Number(row.amount),
+        currency: row.currency,
+        status: row.status,
+        direction: row.direction,
+        occurredAt: row.occurred_at.toISOString(),
+        createdAt: row.created_at.toISOString(),
+      };
+
+      return res.status(201).json({ payment });
+    } catch (err) {
+      console.error('Error in POST /api/payments:', err);
+      return res.status(500).json({ error: 'Internal server error' });
     }
   }
 );
