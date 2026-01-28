@@ -11,4 +11,64 @@ generator client {
 
 datasource db {
   provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Currency {
+  JPY
+  USD
+}
+
+enum PaymentStatus {
+  completed
+  pending
+  failed
+}
+
+enum PaymentDirection {
+  in
+  out
+}
+
+model User {
+  id           Int      @id @default(autoincrement())
+  email        String   @unique
+  passwordHash String   @map("password_hash")
+  name         String
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  wallets  Wallet[]
+  payments Payment[]
+
+  @@map("users")
+}
+
+model Wallet {
+  id        Int      @id @default(autoincrement())
+  userId    Int      @map("user_id")
+  currency  Currency
+  balance   BigInt   @default(0) @db.BigInt
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@unique([userId, currency], map: "uq_wallet_user_currency")
+  @@map("wallets")
+}
+
+model Payment {
+  id         Int              @id @default(autoincrement())
+  userId     Int              @map("user_id")
+  title      String
+  amount     BigInt           @db.BigInt
+  currency   Currency
+  status     PaymentStatus
+  direction  PaymentDirection
+  occurredAt DateTime         @map("occurred_at")
+  createdAt  DateTime         @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@map("payments")
 }
