@@ -23,6 +23,8 @@ dist-ssr
 *.sln
 *.sw?
 paypalプロジェクトDB作成 2cd530e6811e802fb324e1cbfdc3f84e 2.md
-backend/document/20260209Prisma書き換え方針.txt
-backend/document/20260212Prisma導入メモ.txt
-backend/document/20260212Prismaモデル定義.txt
+backend/document/20260209Prisma書き換え方針.md
+backend/document/20260212Prismaデータ処理実装.md
+backend/document/20260212Prisma導入メモ.md
+backend/document/20260212Prismaモデル定義.md
+backend/document/paypalプロジェクトDB作成 2cd530e6811e802fb324e1cbfdc3f84e 2.md
