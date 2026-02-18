@@ -27,4 +27,9 @@ backend/document/20260209Prisma書き換え方針.md
 backend/document/20260212Prismaデータ処理実装.md
 backend/document/20260212Prisma導入メモ.md
 backend/document/20260212Prismaモデル定義.md
+backend/document/20260215AWSリリース手順.md
+backend/document/20260215AWS実装手順_Lightsail.md
+backend/document/20260215インフラ基本フロー.md
+backend/document/20260218Lightsailインスタンス情報.md
 backend/document/paypalプロジェクトDB作成 2cd530e6811e802fb324e1cbfdc3f84e 2.md
+backend/learning_log/20260218_AWS学習記録.md
