@@ -10,7 +10,7 @@ import {
   CreatePaymentRequest,
   CreatePaymentResponse,
 } from './types';
-import { pool } from './db';
+import { prisma } from "./db";
 import { pathToFileURL } from 'url';
 
 const app = express();
@@ -21,88 +21,35 @@ app.use(express.json());
 app.use(cors());
 
 async function fetchUserById(userId: number): Promise<User | null> {
-  const result = await pool.query(
-    `
-    SELECT id, email, name, created_at, updated_at
-    FROM users
-    WHERE id = $1
-    `,
-    [userId]
-  );
+  const row = await prisma.user.findUnique({
+    where: {id: userId },
+    select: {
+      id: true,
+      email: true,
+      name: true,
+      createdAt: true,
+      updatedAt: true,
+    },
+  });
 
-  if (result.rowCount === 0) {
-    return null;
-  }
+  if (!row) return null;
 
-  const row = result.rows[0];
-
-  const user: User = {
+  return {
     id: row.id,
     email: row.email,
     name: row.name,
-    createdAt: row.created_at.toISOString(),
-    updatedAt: row.updated_at.toISOString(),
+    createdAt: row.createdAt.toISOString(),
+    updatedAt: row.updatedAt.toISOString(),
   };
-
-  return user;
 }
 
 
 async function fetchWalletsByUserId(userId: number): Promise<Wallet[]> {
-  const result = await pool.query(
-    `
-    SELECT id, user_id, currency, balance, updated_at
-    FROM wallets
-    WHERE user_id = $1
-    ORDER BY currency
-    `,
-    [userId]
-  );
-
-  const wallets: Wallet[] = result.rows.map((row) => ({
-    id: row.id,
-    userId: row.user_id,
-    currency: row.currency,
-    balance: Number(row.balance),
-    updatedAt: row.updated_at.toISOString(),
-  }));
-
-  return wallets;
+  
 }
 
 async function fetchPaymentsByUserId(userId: number): Promise<Payment[]> {
-  const result = await pool.query(
-    `
-    SELECT 
-      id,
-      user_id,
-      title,
-      amount,
-      currency,
-      status,
-      direction,
-      occurred_at,
-      created_at
-    FROM payments
-    WHERE user_id = $1
-    ORDER BY occurred_at DESC, id DESC
-    `,
-    [userId]
-  );
-
-  const payments: Payment[] = result.rows.map((row) => ({
-    id: row.id,
-    userId: row.user_id,
-    title: row.title,
-    amount: Number(row.amount),
-    currency: row.currency,
-    status: row.status,
-    direction: row.direction,
-    occurredAt: row.occurred_at.toISOString(),
-    createdAt: row.created_at.toISOString(),
-  }));
-
-  return payments;
+  
 }
 
 const FIXED_USER_ID = 1;
