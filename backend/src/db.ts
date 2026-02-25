@@ -1,11 +1,13 @@
-import { Pool } from "pg";
+import { PrismaClient } from "./generated/prisma/client";
+import { PrismaPg } from "@prisma/adapter-pg";
 
-//本来は環境変数で管理する
-export const pool = new Pool({
-    user: "",
-    host: "",
-    database: "",
-    password: "",
-    port: 5432,
-});
+const globalForPrisma = globalThis as unknown as {
+    prisma?: PrismaClient;
+};
 
+const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL! });
+export const prisma =  globalForPrisma.prisma ?? new PrismaClient({ adapter });
+
+if (process.env.NODE_ENV !== "production"){
+    globalForPrisma.prisma = prisma;
+}
