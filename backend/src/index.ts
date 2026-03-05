@@ -1,3 +1,4 @@
+import 'dotenv/config';
 import express, { Request, Response } from 'express';
 import cors from 'cors'
 import {
@@ -11,7 +12,6 @@ import {
   CreatePaymentResponse,
 } from './types';
 import { prisma } from "./db";
-import { pathToFileURL } from 'url';
 
 const app = express();
 const PORT = 3001;
@@ -45,12 +45,61 @@ async function fetchUserById(userId: number): Promise<User | null> {
 
 
 async function fetchWalletsByUserId(userId: number): Promise<Wallet[]> {
+  const rows = await prisma.wallet.findMany({
+    where: { userId },
+    orderBy: { currency: "asc"},
+    select: {
+      id: true,
+      userId: true,
+      currency: true,
+      balance: true,
+      updatedAt: true,
+    },
+  });
+
+  return rows.map((row) => ({
+    id: row.id,
+    userId: row.userId,
+    currency: row.currency,
+    balance: Number(row.balance),
+    updatedAt: row.updatedAt.toISOString(),
+  }));
   
 }
 
 async function fetchPaymentsByUserId(userId: number): Promise<Payment[]> {
-  
+  const rows = await prisma.payment.findMany({
+    where: { userId },
+    orderBy: [
+      { occurredAt: "desc" },
+      { id: "desc" },
+    ],
+    select: {
+      id: true,
+      userId: true,
+      title: true,
+      amount: true,
+      currency: true,
+      status: true,
+      direction: true,
+      occurredAt: true,
+      createdAt: true,
+    },
+  });
+
+  return rows.map((row) => ({
+    id: row.id,
+    userId: row.userId,
+    title: row.title,
+    amount: Number(row.amount),
+    currency: row.currency,
+    status: row.status,
+    direction: row.direction,
+    occurredAt: row.occurredAt.toISOString(),
+    createdAt: row.createdAt.toISOString(),
+  }));
 }
+
 
 const FIXED_USER_ID = 1;
 
@@ -112,33 +161,41 @@ app.post(
       const title =
         note && note.trim().length > 0 ? `${toEmail} (${note.trim()})` : toEmail;
 
-      const result = await pool.query(
-        `
-        INSERT INTO payments (
-          user_id, title, amount, currency, status, direction, occurred_at, created_at
-        )
-        VALUES ($1, $2, $3, 'JPY', 'completed', 'out', NOW(), NOW())
-        RETURNING
-          id, user_id, title, amount, currency, status, direction, occurred_at, created_at
-        `,
-        [FIXED_USER_ID, title, amount]
-      );
-
-      const row = result.rows[0];
-
+      const row = await prisma.payment.create({
+        data: {
+          userId: FIXED_USER_ID,
+          title,
+          amount: BigInt(amount),
+          currency: "JPY",
+          status: "completed",
+          direction: "out",
+          occurredAt: new Date(),
+        },
+        select: {   
+          id: true,
+          userId: true,
+          title: true,
+          amount: true,
+          currency: true,
+          status: true,
+          direction: true,
+          occurredAt: true,
+          createdAt: true,
+        },
+      });
       const payment: Payment = {
         id: row.id,
-        userId: row.user_id,
+        userId: row.userId,
         title: row.title,
         amount: Number(row.amount),
         currency: row.currency,
         status: row.status,
         direction: row.direction,
-        occurredAt: row.occurred_at.toISOString(),
-        createdAt: row.created_at.toISOString(),
+        occurredAt: row.occurredAt.toISOString(),
+        createdAt: row.createdAt.toISOString(),
       };
-
       return res.status(201).json({ payment });
+
     } catch (err) {
       console.error('Error in POST /api/payments:', err);
       return res.status(500).json({ error: 'Internal server error' });
