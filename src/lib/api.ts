@@ -45,8 +45,8 @@ export type PaymentsResponse = {
   payments: Payment[];
 };
 
-// 開発中はローカルのバックエンドに直接向ける
-const API_BASE_URL = 'http://localhost:3001';
+
+const API_BASE_URL = '';
 
 // 共通の fetch ヘルパー（エラー処理を一元化）
 async function fetchJson<T>(path: string): Promise<T> {
